@@ -1,5 +1,6 @@
-package br.com.vitordeazambuja.gestao_vagas.candidate;
+package br.com.vitordeazambuja.gestao_vagas.candidate.repositories;
 
+import br.com.vitordeazambuja.gestao_vagas.candidate.entities.CandidateEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

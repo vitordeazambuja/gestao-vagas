@@ -1,4 +1,4 @@
-package br.com.vitordeazambuja.gestao_vagas.candidate;
+package br.com.vitordeazambuja.gestao_vagas.candidate.entities;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
