@@ -20,28 +20,46 @@ public class SecurityConfig {
     @Autowired
     private SecurityCandidateFilter securityCandidateFilter;
 
-    private static final String[] SWAGGER_LIST = {
+    private static final String[] WHITELIST = {
             "/swagger-ui/**",
             "/swagger-ui.html",
             "/v3/api-docs/**",
-            "/swagger-resources/**"
+            "/swagger-resources/**",
+            "/actuator",
+            "/actuator/health/**",
+            "/actuator/metrics/**"
     };
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> {
-                    auth.requestMatchers("/candidate/").permitAll()
-                        .requestMatchers("/company/").permitAll()
-                        .requestMatchers("/company/auth").permitAll()
-                        .requestMatchers("/candidate/auth").permitAll()
-                        .requestMatchers(SWAGGER_LIST).permitAll();
+
+                    auth.requestMatchers(
+                            "/actuator",
+                            "/actuator/http.server.requests/**",
+                            "/actuator/health/**",
+                            "/actuator/metrics/**"
+                    ).permitAll();
+
+                    auth.requestMatchers("/company/auth").permitAll();
+                    auth.requestMatchers("/candidate/auth").permitAll();
+
+                    auth.requestMatchers("/candidate/**").permitAll();
+                    auth.requestMatchers("/company/**").permitAll();
+
+                    auth.requestMatchers(
+                            "/swagger-ui/**",
+                            "/swagger-ui.html",
+                            "/v3/api-docs/**",
+                            "/swagger-resources/**"
+                    ).permitAll();
+
                     auth.anyRequest().authenticated();
                 })
                 .addFilterBefore(securityCandidateFilter, BasicAuthenticationFilter.class)
-                .addFilterBefore(securityCompanyFilter, BasicAuthenticationFilter.class)
+                .addFilterBefore(securityCompanyFilter, BasicAuthenticationFilter.class);
 
-        ;
         return http.build();
     }
 

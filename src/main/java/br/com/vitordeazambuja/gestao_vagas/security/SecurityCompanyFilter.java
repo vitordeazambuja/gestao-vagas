@@ -22,9 +22,17 @@ public class SecurityCompanyFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+
+        String uri = request.getRequestURI();
+
+        if (uri.startsWith("/actuator")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String header = request.getHeader("Authorization");
 
-        if (request.getRequestURI().startsWith("/company") && header != null) {
+        if (uri.startsWith("/company") && header != null) {
             var token = jwtProvider.validateToken(header);
             if (token == null) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -32,12 +40,15 @@ public class SecurityCompanyFilter extends OncePerRequestFilter {
             }
 
             var roles = token.getClaim("roles").asList(String.class);
+
             var authorities = roles.stream()
                     .map(r -> new SimpleGrantedAuthority("ROLE_" + r.toUpperCase()))
                     .toList();
 
             request.setAttribute("company_id", token.getSubject());
+
             var auth = new UsernamePasswordAuthenticationToken(token.getSubject(), null, authorities);
+
             SecurityContextHolder.getContext().setAuthentication(auth);
         }
 

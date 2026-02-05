@@ -23,9 +23,16 @@ public class SecurityCandidateFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
+        String uri = request.getRequestURI();
+
+        if (uri.startsWith("/actuator")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String header = request.getHeader("Authorization");
 
-        if (request.getRequestURI().startsWith("/candidate")) {
+        if (uri.startsWith("/candidate")) {
             if (header != null) {
                 var token = this.jwtProvider.validateToken(header);
                 if (token == null) {
@@ -38,12 +45,12 @@ public class SecurityCandidateFilter extends OncePerRequestFilter {
                 var roles = token.getClaim("roles").asList(Object.class);
 
                 var grants = roles.stream()
-                        .map(
-                                role -> new SimpleGrantedAuthority("ROLE_" + role.toString().toUpperCase())
-                        )
+                        .map(role -> new SimpleGrantedAuthority("ROLE_" + role.toString().toUpperCase()))
                         .toList();
 
-                UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(token.getSubject(),null, grants);
+                UsernamePasswordAuthenticationToken auth =
+                        new UsernamePasswordAuthenticationToken(token.getSubject(), null, grants);
+
                 SecurityContextHolder.getContext().setAuthentication(auth);
             }
         }
