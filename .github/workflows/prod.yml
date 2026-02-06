@@ -23,3 +23,14 @@ jobs:
         run: docker build -t ${{ secrets.DOCKER_USER }}/gestao_vagas .
       - name: Publish image
         run: docker push ${{ secrets.DOCKER_USER }}/gestao_vagas
+
+  deploy:
+    needs: build
+    runs-on: self-hosted
+    steps:
+      - name: Pull image Docker Hub
+        run: docker pull ${{ secrets.DOCKER_USER }}/gestao_vagas:latest
+      - name: Remove container
+        run: docker rm -f gestao_vagas
+      - name: Run Docker container gestao_vagas
+        run: docker run -d -p 8080:8080 ${{ secrets.DOCKER_USER }}/gestao_vagas:latest
