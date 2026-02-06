@@ -20,26 +20,13 @@ public class SecurityConfig {
     @Autowired
     private SecurityCandidateFilter securityCandidateFilter;
 
-    private static final String[] WHITELIST = {
-            "/swagger-ui/**",
-            "/swagger-ui.html",
-            "/v3/api-docs/**",
-            "/swagger-resources/**",
-            "/actuator",
-            "/actuator/health/**",
-            "/actuator/metrics/**"
-    };
-
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> {
 
                     auth.requestMatchers(
-                            "/actuator",
-                            "/actuator/http.server.requests/**",
-                            "/actuator/health/**",
-                            "/actuator/metrics/**"
+                            "/actuator/**"
                     ).permitAll();
 
                     auth.requestMatchers("/company/auth").permitAll();
